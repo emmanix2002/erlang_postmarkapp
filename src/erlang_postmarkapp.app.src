@@ -1,0 +1,21 @@
+{application, erlang_postmarkapp,
+ [{description, "a library for consuming the Postmark email service"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {applications, [kernel, stdlib, crypto, inets, ssl, jsx]},
+  {env,[]},
+  {modules, [
+   erlang_postmarkapp,
+   erlang_postmarkapp_request
+  ]},
+  {maintainers, ["Okeke Emmanuel"]},
+  {licenses, ["MIT"]},
+  {links, [
+   {"Rebar3", "http://www.rebar3.org/"}
+  ]},
+  {files, [
+   "src",
+   "rebar.config", "rebar.config.script", "rebar.lock"
+   "README.md", "CHANGES.md", "LICENSE"
+  ]}
+ ]}.
