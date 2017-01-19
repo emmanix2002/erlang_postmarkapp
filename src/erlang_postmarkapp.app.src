@@ -1,8 +1,8 @@
 {application, erlang_postmarkapp,
  [{description, "a library for consuming the Postmark email service"},
-  {vsn, "0.1.0"},
+  {vsn, "1.0"},
   {registered, []},
-  {applications, [kernel, stdlib, crypto, inets, ssl, jsx]},
+  {applications, [kernel, stdlib, jsx]},
   {env,[]},
   {modules, [
    erlang_postmarkapp,
