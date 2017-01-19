@@ -40,6 +40,8 @@
 setup(ServerToken) ->
     ets:new(?POSTMARK_ETS_TABLE, [set, named_table]),
     ets:insert(?POSTMARK_ETS_TABLE, {?POSTMARK_ETS_TOKEN_KEY, ServerToken}),
+    inets:start(),
+    ssl:start(),
     ok.
 
 %% @spec send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> ok
