@@ -11,7 +11,37 @@
 -define(POSTMARK_REQUEST_OPTS, [{timeout, 30000}, {ssl, [{verify, verify_none}]}]).
 -define(POSTMARK_CONTENT_TYPE, "application/json").
 -define(POSTMARK_ENDPOINT_EMAIL, "email").
--define(POSTMARK_ENDPOINT_EMAIL_BATCH, string:join(["email", ?POSTMARK_ENDPOINT_EMAIL], "/")).
+-define(POSTMARK_ENDPOINT_EMAIL_BATCH, string:join([?POSTMARK_ENDPOINT_EMAIL, "batch"], "/")).
+-define(POSTMARK_ENDPOINT_EMAIL_WITH_TEMPLATE, string:join([?POSTMARK_ENDPOINT_EMAIL, "withTemplate"], "/")).
+-define(POSTMARK_BATCH_MAX_RECIPIENTS, 500).
 -define(POSTMARK_ETS_TABLE, postmark_tbl).
 -define(POSTMARK_ETS_TOKEN_KEY, server_token).
--record(postmark_email, {from, to, subject, html, text, tag, track_opens=true, reply_to, cc, bcc, track_links}).
+
+-type trackLinkStatus() :: none | html_and_text | html_only | text_only.
+-type argumentValue() :: string() | undefined.
+-type listArgumentValue() :: list() | undefined.
+
+%% a Postmark email record
+-record(postmark_email, {
+    from                :: string(),
+    to                  :: string(),
+    subject             :: string(),
+    html                :: argumentValue(),
+    text                :: argumentValue(),
+    tag                 :: argumentValue(),
+    track_opens=true    :: boolean(),
+    reply_to            :: argumentValue(),
+    cc                  :: argumentValue(),
+    bcc                 :: argumentValue(),
+    track_links         :: trackLinkStatus(),
+    template_id         :: argumentValue(),
+    template_model      :: listArgumentValue(),
+    inline_css=true     :: boolean()
+}).
+
+%% the record representing a Postmark API response
+-record(postmark_send_response, {
+    message_id  :: string(),
+    error_code  :: integer(),
+    message     :: string()
+}).
