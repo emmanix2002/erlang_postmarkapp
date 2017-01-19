@@ -223,7 +223,7 @@ collect_emails(EmailList) ->
 
 collect_emails([H|T], Accumulator) ->
     case H of
-        {postmark_email, _, _, _, _, _, _, _, _, _, _, _} ->
+        {postmark_email, _, _, _, _, _, _, _, _, _, _, _, _, _, _} ->
             collect_emails(T, [postmark_email_to_json(H) | Accumulator]);
         _ ->
             collect_emails(T, Accumulator)
