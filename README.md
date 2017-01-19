@@ -26,7 +26,7 @@ You can add it to your `rebar.config` like so:
 ```erlang
 {deps, [
        ...
-       {erlang_postmarkapp, {git, "https://github.com/emmanix2002/erlang_postmarkapp.git", {branch, "master"}}}
+       {erlang_postmarkapp, "1.*", {git, "https://github.com/emmanix2002/erlang_postmarkapp.git", {branch, "master"}}}
 ]}.
 ```
 
