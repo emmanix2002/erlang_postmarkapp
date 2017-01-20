@@ -12,12 +12,18 @@ Build
     $ rebar3 compile
 
 What does it support
-------------
-At the moment, the library only supports _**sending out emails**_. It supports sending in these forms:   
+------------    
+At the moment, the library only supports: _sending emails_ and _handling bounces_.
 
 - Sending a single email `send_email`
 - Sending in batches `send_email_batch`
 - Sending using templates `send_email_with_template`
+- Getting delivery stats `get_delivery_stats`
+- Querying for bounces `get_bounces`
+- Getting a single bounce `get_bounce`
+- Getting the dump for a bounce `get_bounce_dump`
+- Activating an email that had a bounce `activate_bounce`
+- Getting tags with bounces `get_bounce_tags`
 
 Installation
 --------

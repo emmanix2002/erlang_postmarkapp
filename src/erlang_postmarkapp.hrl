@@ -13,6 +13,11 @@
 -define(POSTMARK_ENDPOINT_EMAIL, "email").
 -define(POSTMARK_ENDPOINT_EMAIL_BATCH, string:join([?POSTMARK_ENDPOINT_EMAIL, "batch"], "/")).
 -define(POSTMARK_ENDPOINT_EMAIL_WITH_TEMPLATE, string:join([?POSTMARK_ENDPOINT_EMAIL, "withTemplate"], "/")).
+-define(POSTMARK_ENDPOINT_BOUNCES, "bounces").
+-define(POSTMARK_ENDPOINT_ACTIVATE, "activate").
+-define(POSTMARK_ENDPOINT_DUMP, "dump").
+-define(POSTMARK_ENDPOINT_TAGS, "tags").
+-define(POSTMARK_ENDPOINT_DELIVERY_STATS, "deliverystats").
 -define(POSTMARK_BATCH_MAX_RECIPIENTS, 500).
 -define(POSTMARK_ETS_TABLE, postmark_tbl).
 -define(POSTMARK_ETS_TOKEN_KEY, server_token).
@@ -44,4 +49,42 @@
     message_id  :: string(),
     error_code  :: integer(),
     message     :: string()
+}).
+
+-record(postmark_bounce_request, {
+    count=500       :: integer(),
+    offset=0        :: integer(),
+    bounce_type     :: string(),
+    email           :: string(),
+    inactive        :: boolean(),
+    tag             :: string(),
+    message_id      :: string(),
+    from_date       :: string(),
+    to_date         :: string()
+}).
+
+%% represents a bounce type record returned after a call to get delivery stats, which returns a list of bounce types
+-record(postmark_bounce_stats, {
+    type    :: argumentValue(),
+    name    :: string(),
+    count   :: integer()
+}).
+
+-record(postmark_bounce, {
+    id              :: integer(),
+    type            :: string(),
+    type_code       :: integer(),
+    name            :: string(),
+    tag             :: argumentValue(),
+    message_id      :: argumentValue(),
+    server_id       :: argumentValue(),
+    description     :: argumentValue(),
+    details         :: argumentValue(),
+    email           :: string(),
+    from            :: string(),
+    bounced_at      :: string(),
+    dump_available  :: boolean(),
+    inactive        :: boolean(),
+    can_activate    :: boolean(),
+    subject         :: string()
 }).
