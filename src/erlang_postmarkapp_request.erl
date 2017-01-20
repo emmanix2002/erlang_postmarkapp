@@ -11,9 +11,17 @@
 -include("erlang_postmarkapp.hrl").
 
 %% API
--export([get_server_token/0, request/3, request/4]).
+-export([
+    get_default_headers/0,
+    get_server_token/0,
+    request/3,
+    request/4,
+    http_build_query/1
+]).
 
 -type requestMethod() :: delete | get | post | put.
+-type queryParamValue() :: string() | integer() | atom() | float() | binary().
+-type queryParam() :: {string(), queryParamValue()} | {binary(), queryParamValue()}.
 -type resultKey() :: headers | body.
 -type body() :: {json, list()} | {string, string()}.
 -spec get_server_token() -> string().
@@ -21,6 +29,7 @@
     [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
 -spec request(Method::requestMethod(), Endpoint::string(), Body::string(), Headers::list()) ->
     [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
+-spec http_build_query(QueryParams::queryParam()) -> string().
 
 %% @spec get_server_token() -> string()
 %% @doc returns the server token saved to the postmark ets table using the server_token key
@@ -34,12 +43,11 @@ get_server_token() ->
 get_default_headers() ->
     [
         {"Accept", ?POSTMARK_CONTENT_TYPE},
-        {"X-Postmark-Server-Token", get_server_token()},
-        {"content-type", ?POSTMARK_CONTENT_TYPE}
+        {"X-Postmark-Server-Token", get_server_token()}
     ].
 
 %% @spec request(Method::requestMethod(), Endpoint::string(), Body::body()) -> [{resultKey(), list()}] | {error, int(), term()} | {error, fail, string()}
-%% @doc makes a request to the API appending the <code>Endpoint</code> to the base Url. Body is a `proplist`
+%% @doc makes a request to the API appending the <code>Endpoint</code> to the base Url; Body is a proplist.
 request(Method, Endpoint, Body) ->
     case Body of
         {json, Payload} ->
@@ -53,11 +61,15 @@ request(Method, Endpoint, Body) ->
 request(Method, Endpoint, Payload, Headers) ->
     Url = string:join([?POSTMARK_REST_URL, Endpoint], "/"),
     ContentType = proplists:get_value("content-type", Headers, ?POSTMARK_CONTENT_TYPE),
-    io:format("Content-Type: ~p~n", [ContentType]),
+    io:format("Request Url: ~p~n", [Url]),
+    io:format("Request Headers: ~p~n", [Headers]),
     io:format("Request Body: ~p~n", [Payload]),
     case Method of
-        get -> process_response(httpc:request(get, {Url, Headers}, [], []));
-        _ -> process_response(httpc:request(Method, {Url, Headers, ContentType, Payload}, ?POSTMARK_REQUEST_OPTS, []))
+        get ->
+            process_response(httpc:request(get, {Url, Headers}, [], []));
+        _ ->
+            io:format("Content-Type: ~p~n", [ContentType]),
+            process_response(httpc:request(Method, {Url, Headers, ContentType, Payload}, ?POSTMARK_REQUEST_OPTS, []))
     end.
 
 %% @doc processes the response from the <code>httpc:request/4</code> call, returning an appropriate response
@@ -84,4 +96,36 @@ process_response(HttpResponse) ->
     catch
         error:badarg -> io:format("Error:badarg");
         error:Error -> io:format("Error: ~p~n", [Error])
+    end.
+
+%% @spec http_build_query(QueryParams::queryParam()) -> string().
+%% @doc converts a list of query parameters to a query string
+http_build_query(QueryParams) when is_list(QueryParams) ->
+    ParamsList = lists:map(fun (Param) ->
+        case Param of
+            {Key, Value} ->
+                if
+                    is_binary(Value) ->
+                        string:join([process_query_key(Key), http_uri:encode(binary_to_list(Value))], "=");
+                    is_atom(Value) ->
+                        string:join([process_query_key(Key), http_uri:encode(atom_to_list(Value))], "=");
+                    true -> string:join([process_query_key(Key), http_uri:encode(Value)], "=")
+                end;
+            _ -> ""
+        end
+    end, QueryParams),
+    string:join(ParamsList, "&");
+
+%% @spec http_build_query(QueryParams::queryParam()) -> string().
+%% @doc converts a list of query parameters to a query string
+http_build_query(_) ->
+    "".
+
+%% @doc converts a query key to a format that can be used in a URL
+process_query_key(Key) ->
+    if
+        is_list(Key) -> lists:flatten(Key);
+        is_atom(Key) -> atom_to_list(Key);
+        is_binary(Key) -> binary_to_list(Key);
+        true -> Key
     end.
