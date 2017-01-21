@@ -4,7 +4,6 @@ erlang_postmarkapp
 An erlang library for consuming the Postmark mail service api. 
 It was inspired by the official Postmark PHP package 
 [https://github.com/wildbit/postmark-php](https://github.com/wildbit/postmark-php).   
-Right now, it does only one thing: send emails :)
 
 Build
 -----
@@ -13,7 +12,7 @@ Build
 
 What does it support
 ------------    
-At the moment, the library only supports: _sending emails_ and _handling bounces_.
+At the moment, the library only supports: _sending emails_, _handling bounces_ and _managing servers_.
 
 - Sending a single email `send_email`
 - Sending in batches `send_email_batch`
@@ -24,6 +23,8 @@ At the moment, the library only supports: _sending emails_ and _handling bounces
 - Getting the dump for a bounce `get_bounce_dump`
 - Activating an email that had a bounce `activate_bounce`
 - Getting tags with bounces `get_bounce_tags`
+- Getting information about a server `get_server`
+- Editing a server `edit_server`
 
 Installation
 --------

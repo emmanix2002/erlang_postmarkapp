@@ -18,13 +18,16 @@
 -define(POSTMARK_ENDPOINT_DUMP, "dump").
 -define(POSTMARK_ENDPOINT_TAGS, "tags").
 -define(POSTMARK_ENDPOINT_DELIVERY_STATS, "deliverystats").
+-define(POSTMARK_ENDPOINT_SERVER, "server").
 -define(POSTMARK_BATCH_MAX_RECIPIENTS, 500).
 -define(POSTMARK_ETS_TABLE, postmark_tbl).
--define(POSTMARK_ETS_TOKEN_KEY, server_token).
+-define(POSTMARK_ETS_ACCOUNT_TOKEN_KEY, account_token).
+-define(POSTMARK_ETS_SERVER_TOKEN_KEY, server_token).
 
 -type trackLinkStatus() :: none | html_and_text | html_only | text_only.
 -type argumentValue() :: string() | undefined.
 -type listArgumentValue() :: list() | undefined.
+-type serverColor() :: purple | blue | turqoise | green | red | yellow | grey.
 
 %% a Postmark email record
 -record(postmark_email, {
@@ -51,6 +54,7 @@
     message     :: string()
 }).
 
+%% a record that encapsulates a bounce request
 -record(postmark_bounce_request, {
     count=500       :: integer(),
     offset=0        :: integer(),
@@ -70,6 +74,7 @@
     count   :: integer()
 }).
 
+%% a record that represents an email bounce
 -record(postmark_bounce, {
     id              :: integer(),
     type            :: string(),
@@ -87,4 +92,27 @@
     inactive        :: boolean(),
     can_activate    :: boolean(),
     subject         :: string()
+}).
+
+%% represents a server in the API; it can be used also for making a request with the edit_server function
+-record(postmark_server, {
+    id                              :: integer(),
+    name                            :: string(),
+    api_tokens=[]                   :: list(),
+    server_link                     :: string(),
+    color                           :: serverColor(),
+    smtp_api_activated              :: boolean(),
+    raw_email_enabled               :: boolean(),
+    delivery_hook_url               :: string(),
+    inbound_address                 :: string(),
+    inbound_hook_url                :: string(),
+    bounce_hook_url                 :: string(),
+    include_bounce_content_in_hook  :: boolean(),
+    open_hook_url                   :: boolean(),
+    post_first_open_only            :: boolean(),
+    track_opens                     :: boolean(),
+    track_links                     :: trackLinkStatus(),
+    inbound_domain                  :: string(),
+    inbound_hash                    :: string(),
+    inbound_spam_threshold          :: integer()
 }).

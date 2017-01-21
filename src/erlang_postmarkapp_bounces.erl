@@ -32,10 +32,14 @@
 -spec bounce_request_item_to_json(Processed::list()) -> list().
 -spec bounce_request_item_to_json(Processed::list(), Accumulator::list()) -> list().
 -spec get_bounces(BounceRequestRecord::#postmark_bounce_request{}) -> [bouncesResponse()] | {error, string()}.
--spec get_bounce(BounceId::integer()) -> bounce().
+-spec get_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
 -spec get_bounce_dump(BounceId::integer()) -> {ok, string()} | {error, string()}.
 -spec activate_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
 -spec get_bounce_tags() -> {ok, tags()} | {error, string()}.
+
+%%====================================================================
+%% API functions
+%%====================================================================
 
 %% @spec get_delivery_stats() -> deliveryStatsResponse()
 %% @doc Get an overview of the delivery statistics for all email that has been sent through this Server.
@@ -80,7 +84,7 @@ get_bounces(BounceRequestRecord) when is_record(BounceRequestRecord, postmark_bo
 get_bounces(_) ->
     {error, "You need to pass an instance of the postmark_bounce_request record"}.
 
-%% @spec get_bounce(BounceId::integer()) -> bounce().
+%% @spec get_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
 %% @doc Locate information on a specific email bounce.
 get_bounce(BounceId) when is_integer(BounceId) ->
     RequestUrl = string:join([?POSTMARK_ENDPOINT_BOUNCES, integer_to_list(BounceId)], "/"),
@@ -89,8 +93,8 @@ get_bounce(BounceId) when is_integer(BounceId) ->
         [{headers, _}, {body, Json}] ->
             case process_bounce_response(Json) of
                 {postmark_bounce, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _} = Bounce ->
-                    Bounce;
-                Error -> Error
+                    {ok, Bounce};
+                [] -> {error, "No data was found in the response"}
             end;
         {error, fail, Reason} -> {error, Reason};
         {error, StatusCode, _Body} ->
@@ -260,10 +264,6 @@ bounce_request_item_to_json([{Key, Value}|T], Accumulator) ->
         is_integer(Value) ->
             bounce_request_item_to_json(T, [
                 {erlang_postmarkapp:process_json_key(Key), list_to_binary(integer_to_list(Value))} | Accumulator
-            ]);
-        is_float(Value) ->
-            bounce_request_item_to_json(T, [
-                {erlang_postmarkapp:process_json_key(Key), list_to_binary(float_to_list(Value))} | Accumulator
             ]);
         true ->
             bounce_request_item_to_json(T, Accumulator)
