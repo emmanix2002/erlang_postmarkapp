@@ -34,8 +34,8 @@
 %% @spec get_server_token() -> string()
 %% @doc returns the server token saved to the postmark ets table using the server_token key
 get_server_token() ->
-    case ets:lookup(?POSTMARK_ETS_TABLE, ?POSTMARK_ETS_TOKEN_KEY) of
-        [{?POSTMARK_ETS_TOKEN_KEY, ServerToken}] -> ServerToken;
+    case ets:lookup(?POSTMARK_ETS_TABLE, ?POSTMARK_ETS_SERVER_TOKEN_KEY) of
+        [{?POSTMARK_ETS_SERVER_TOKEN_KEY, ServerToken}] -> ServerToken;
         _ -> ""
     end.
 

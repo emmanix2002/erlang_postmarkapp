@@ -29,6 +29,6 @@ get_bounce_tags() ->
     ServerToken = "your server token here",
     erlang_postmarkapp:setup(ServerToken),
     case erlang_postmarkapp_bounces:get_bounce_tags() of
-        [ok, Tags] -> io:format("A total of ~p tags: ~p~n", [length(Tags), Tags]);
+        {ok, Tags} -> io:format("A total of ~p tags: ~p~n", [length(Tags), Tags]);
         {error, Reason} -> io:format("Request failure because ~p~n", [Reason])
     end.

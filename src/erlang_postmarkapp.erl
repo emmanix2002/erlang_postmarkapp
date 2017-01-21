@@ -14,6 +14,7 @@
 %% API exports
 -export([
     setup/1,
+    setup/2,
     send_email/1,
     send_email/4,
     send_email/11,
@@ -25,7 +26,8 @@
     get_attribute_value/2,
     get_response_data/2,
     is_value_not_undefined/1,
-    process_json_key/1
+    process_json_key/1,
+    track_links_to_string/1
 ]).
 
 -type emailBody() :: {text, string()} | {html, string()}.
@@ -33,6 +35,7 @@
 -type postmarkEmails() :: [postmarkEmail()].
 -type sendEmailResponse() :: {ok, string()} | {error, string()}.
 -spec setup(ServerToken::string()) -> ok.
+-spec setup(ServerToken::string(), AccountToken::string()) -> ok.
 -spec send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> sendEmailResponse().
 -spec send_email(From::string(), To::string(), Subject::string(), HtmlBody::argumentValue(), TextBody::argumentValue(),
     Tag::string(), TrackOpens::boolean(), ReplyTo::argumentValue(), Cc::argumentValue(), Bcc::argumentValue(),
@@ -54,10 +57,16 @@
 %% @spec setup(ServerToken::string()) -> ok
 %% @doc sets up the environment for making postmark requests
 setup(ServerToken) ->
-    ets:new(?POSTMARK_ETS_TABLE, [set, named_table]),
-    ets:insert(?POSTMARK_ETS_TABLE, {?POSTMARK_ETS_TOKEN_KEY, ServerToken}),
-    inets:start(),
-    ssl:start(),
+    start(),
+    ets:insert(?POSTMARK_ETS_TABLE, {?POSTMARK_ETS_SERVER_TOKEN_KEY, ServerToken}),
+    ok.
+
+
+%% @spec setup(ServerToken::string(), AccountToken::string()) -> ok
+%% @doc sets up the environment for making postmark requests
+setup(ServerToken, AccountToken) ->
+    setup(ServerToken),
+    ets:insert(?POSTMARK_ETS_TABLE, {?POSTMARK_ETS_ACCOUNT_TOKEN_KEY, AccountToken}),
     ok.
 
 %% @spec send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> ok
@@ -209,9 +218,45 @@ get_response_data(Key, Data) ->
                 true -> Value
             end
     end.
+
+%% @doc converts the track links option to the string value
+track_links_to_string(TrackLinkStatus) ->
+    case TrackLinkStatus of
+        none -> "None";
+        html_and_text -> "HtmlAndText";
+        html_only -> "HtmlOnly";
+        text_only -> "TextOnly";
+        undefined -> "None"
+    end.
+
+%% @doc converts a json object key to a binary
+process_json_key(Key) when not is_binary(Key) ->
+    if
+        is_list(Key) -> list_to_binary(Key);
+        is_atom(Key) -> list_to_binary(atom_to_list(Key));
+        true -> Key
+    end;
+
+%% @doc converts a json object key to a binary
+process_json_key(Key) -> Key.
+
+%% @doc checks that a value in a tuple of the form {Key, Value} is not the atom `undefined`
+is_value_not_undefined({_, Value}) ->
+    case Value of
+        undefined -> false;
+        _ -> true
+    end.
+
 %%====================================================================
 %% Internal functions
 %%====================================================================
+
+%% @doc starts all services required for the library to work
+start() ->
+    ets:new(?POSTMARK_ETS_TABLE, [set, named_table]),
+    inets:start(),
+    ssl:start(),
+    ok.
 
 %% @doc process a list of email responses, converting them to a list of #postmark_send_response records
 process_batch_send_response(DataList) when is_list(DataList), length(DataList) > 0 ->
@@ -271,16 +316,6 @@ verify_email(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
 %% @doc checks the email for some conditions that show if it should be sent or not
 verify_email(_) ->
     {false, "No a valid postmark email record"}.
-
-%% @doc converts the track links option to the string value
-track_links_to_string(TrackLinkStatus) ->
-    case TrackLinkStatus of
-        none -> "None";
-        html_and_text -> "HtmlAndText";
-        html_only -> "HtmlOnly";
-        text_only -> "TextOnly";
-        undefined -> "None"
-    end.
 
 %% @spec spec postmark_email_to_json(PostmarkEmail::postmarkEmail()) -> list()
 %% @doc converts a postmark email record to the appropriate JSON data array
@@ -344,21 +379,3 @@ email_item_to_json([H|T], Accumulator) ->
 %% @doc returns the value for an attribute
 get_attribute_value(Attribute, Proplist) ->
     proplists:get_value(list_to_binary(Attribute), Proplist).
-
-%% @doc converts a json object key to a binary
-process_json_key(Key) when not is_binary(Key) ->
-    if
-        is_list(Key) -> list_to_binary(Key);
-        is_atom(Key) -> list_to_binary(atom_to_list(Key));
-        true -> Key
-    end;
-
-%% @doc converts a json object key to a binary
-process_json_key(Key) -> Key.
-
-%% @doc checks that a value in a tuple of the form {Key, Value} is not the atom `undefined`
-is_value_not_undefined({_, Value}) ->
-    case Value of
-        undefined -> false;
-        _ -> true
-    end.
