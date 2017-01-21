@@ -265,10 +265,6 @@ bounce_request_item_to_json([{Key, Value}|T], Accumulator) ->
             bounce_request_item_to_json(T, [
                 {erlang_postmarkapp:process_json_key(Key), list_to_binary(integer_to_list(Value))} | Accumulator
             ]);
-        is_float(Value) ->
-            bounce_request_item_to_json(T, [
-                {erlang_postmarkapp:process_json_key(Key), list_to_binary(float_to_list(Value))} | Accumulator
-            ]);
         true ->
             bounce_request_item_to_json(T, Accumulator)
     end.

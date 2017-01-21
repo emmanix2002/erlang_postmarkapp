@@ -14,10 +14,14 @@
 %% API
 -export([get_server/0, edit_server/1]).
 
+-spec get_server() -> {ok, #postmark_server{}} | {error, string()}.
+-spec edit_server(ServerRecord::#postmark_server{}) -> {ok, #postmark_server{}} | {error, string()}.
+
 %%====================================================================
 %% API functions
 %%====================================================================
 
+%% @spec get_server() -> {ok, #postmark_server{}} | {error, string()}.
 %% @doc Get the settings for the server associated with this PostmarkClient setup; defined by the ServerToken passed in.
 get_server() ->
     case erlang_postmarkapp_request:request(get, ?POSTMARK_ENDPOINT_SERVER, {string, ""}) of
@@ -33,6 +37,8 @@ get_server() ->
             {error, Message}
     end.
 
+%% @spec edit_server(ServerRecord::#postmark_server{}) -> {ok, #postmark_server{}} | {error, string()}.
+%% @doc Modify the associated Server.
 edit_server(ServerRecord) when is_record(ServerRecord, postmark_server) ->
     Data = server_to_list(ServerRecord),
     case erlang_postmarkapp_request:request(put, ?POSTMARK_ENDPOINT_SERVER, {json, Data}) of
@@ -48,6 +54,8 @@ edit_server(ServerRecord) when is_record(ServerRecord, postmark_server) ->
             {error, Message}
     end;
 
+%% @spec edit_server(ServerRecord::#postmark_server{}) -> {ok, #postmark_server{}} | {error, string()}.
+%% @doc Modify the associated Server.
 edit_server(_) ->
     {error, "You need to pass a record of type postmark_server"}.
 
@@ -113,10 +121,6 @@ server_item_to_json([{Key, Value}|T], Accumulator) ->
         is_integer(Value) ->
             server_item_to_json(T, [
                 {erlang_postmarkapp:process_json_key(Key), list_to_binary(integer_to_list(Value))} | Accumulator
-            ]);
-        is_float(Value) ->
-            server_item_to_json(T, [
-                {erlang_postmarkapp:process_json_key(Key), list_to_binary(float_to_list(Value))} | Accumulator
             ]);
         true ->
             server_item_to_json(T, Accumulator)
