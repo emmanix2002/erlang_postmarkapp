@@ -13,7 +13,6 @@
 %% API
 -export([
     get_default_headers/0,
-    get_server_token/0,
     request/3,
     request/4,
     http_build_query/1
@@ -24,26 +23,17 @@
 -type queryParam() :: {string(), queryParamValue()} | {binary(), queryParamValue()}.
 -type resultKey() :: headers | body.
 -type body() :: {json, list()} | {string, string()}.
--spec get_server_token() -> string().
 -spec request(Method::requestMethod(), Endpoint::string(), Body::body()) ->
     [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
 -spec request(Method::requestMethod(), Endpoint::string(), Body::string(), Headers::list()) ->
     [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
 -spec http_build_query(QueryParams::queryParam()) -> string().
 
-%% @spec get_server_token() -> string()
-%% @doc returns the server token saved to the postmark ets table using the server_token key
-get_server_token() ->
-    case ets:lookup(?POSTMARK_ETS_TABLE, ?POSTMARK_ETS_SERVER_TOKEN_KEY) of
-        [{?POSTMARK_ETS_SERVER_TOKEN_KEY, ServerToken}] -> ServerToken;
-        _ -> ""
-    end.
-
 %% @doc returns the default request headers
 get_default_headers() ->
     [
         {"Accept", ?POSTMARK_CONTENT_TYPE},
-        {"X-Postmark-Server-Token", get_server_token()}
+        {"X-Postmark-Server-Token", erlang_postmarkapp:get_server_token()}
     ].
 
 %% @spec request(Method::requestMethod(), Endpoint::string(), Body::body()) -> [{resultKey(), list()}] | {error, int(), term()} | {error, fail, string()}
