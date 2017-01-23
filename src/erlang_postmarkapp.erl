@@ -27,7 +27,9 @@
     get_response_data/2,
     is_value_not_undefined/1,
     process_json_key/1,
-    track_links_to_string/1
+    track_links_to_string/1,
+    get_server_token/0,
+    get_account_token/0
 ]).
 
 -type emailBody() :: {text, string()} | {html, string()}.
@@ -36,6 +38,8 @@
 -type sendEmailResponse() :: {ok, string()} | {error, string()}.
 -spec setup(ServerToken::string()) -> ok.
 -spec setup(ServerToken::string(), AccountToken::string()) -> ok.
+-spec get_server_token() -> string().
+-spec get_account_token() -> string().
 -spec send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> sendEmailResponse().
 -spec send_email(From::string(), To::string(), Subject::string(), HtmlBody::argumentValue(), TextBody::argumentValue(),
     Tag::string(), TrackOpens::boolean(), ReplyTo::argumentValue(), Cc::argumentValue(), Bcc::argumentValue(),
@@ -61,13 +65,28 @@ setup(ServerToken) ->
     ets:insert(?POSTMARK_ETS_TABLE, {?POSTMARK_ETS_SERVER_TOKEN_KEY, ServerToken}),
     ok.
 
-
 %% @spec setup(ServerToken::string(), AccountToken::string()) -> ok
 %% @doc sets up the environment for making postmark requests
 setup(ServerToken, AccountToken) ->
     setup(ServerToken),
     ets:insert(?POSTMARK_ETS_TABLE, {?POSTMARK_ETS_ACCOUNT_TOKEN_KEY, AccountToken}),
     ok.
+
+%% @spec get_server_token() -> string()
+%% @doc returns the server token saved to the postmark ets table using the server_token key
+get_server_token() ->
+    case ets:lookup(?POSTMARK_ETS_TABLE, ?POSTMARK_ETS_SERVER_TOKEN_KEY) of
+        [{?POSTMARK_ETS_SERVER_TOKEN_KEY, ServerToken}] -> ServerToken;
+        _ -> ""
+    end.
+
+%% @spec get_account_token() -> string()
+%% @doc returns the account token saved to the postmark ets table using the account_token key
+get_account_token() ->
+    case ets:lookup(?POSTMARK_ETS_TABLE, ?POSTMARK_ETS_ACCOUNT_TOKEN_KEY) of
+        [{?POSTMARK_ETS_ACCOUNT_TOKEN_KEY, AccountToken}] -> AccountToken;
+        _ -> ""
+    end.
 
 %% @spec send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> ok
 %% @doc sends a single email
@@ -253,7 +272,12 @@ is_value_not_undefined({_, Value}) ->
 
 %% @doc starts all services required for the library to work
 start() ->
-    ets:new(?POSTMARK_ETS_TABLE, [set, named_table]),
+    try ets:info(?POSTMARK_ETS_TABLE, [set, named_table]) of
+        undefined -> ets:new(?POSTMARK_ETS_TABLE, [set, named_table]);
+        _Table -> ok
+    catch
+        error:badarg -> io:format("Table probaly already exists~n")
+    end,
     inets:start(),
     ssl:start(),
     ok.
