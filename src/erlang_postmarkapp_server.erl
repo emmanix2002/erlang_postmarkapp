@@ -1,8 +1,8 @@
 %%%-------------------------------------------------------------------
 %%% @author eokeke
-%%% @copyright (C) 2017, <COMPANY>
+%%% @copyright (C) 2017
 %%% @doc
-%%%
+%%% This module contains functions for dealing with the server endpoints.
 %%% @end
 %%% @reference http://developer.postmarkapp.com/developer-api-server.html
 %%% Created : 21. Jan 2017 5:59 PM
@@ -14,15 +14,12 @@
 %% API
 -export([get_server/0, edit_server/1]).
 
--spec get_server() -> {ok, #postmark_server{}} | {error, string()}.
--spec edit_server(ServerRecord::#postmark_server{}) -> {ok, #postmark_server{}} | {error, string()}.
-
 %%====================================================================
 %% API functions
 %%====================================================================
 
-%% @spec get_server() -> {ok, #postmark_server{}} | {error, string()}.
 %% @doc Get the settings for the server associated with this PostmarkClient setup; defined by the ServerToken passed in.
+-spec get_server() -> {ok, #postmark_server{}} | {error, string()}.
 get_server() ->
     case erlang_postmarkapp_request:request(get, ?POSTMARK_ENDPOINT_SERVER, {string, ""}) of
         [{headers, _}, {body, Json}] ->
@@ -37,8 +34,8 @@ get_server() ->
             {error, Message}
     end.
 
-%% @spec edit_server(ServerRecord::#postmark_server{}) -> {ok, #postmark_server{}} | {error, string()}.
 %% @doc Modify the associated Server.
+-spec edit_server(ServerRecord::#postmark_server{}) -> {ok, #postmark_server{}} | {error, string()}.
 edit_server(ServerRecord) when is_record(ServerRecord, postmark_server) ->
     Data = server_to_list(ServerRecord),
     case erlang_postmarkapp_request:request(put, ?POSTMARK_ENDPOINT_SERVER, {json, Data}) of
@@ -54,7 +51,6 @@ edit_server(ServerRecord) when is_record(ServerRecord, postmark_server) ->
             {error, Message}
     end;
 
-%% @spec edit_server(ServerRecord::#postmark_server{}) -> {ok, #postmark_server{}} | {error, string()}.
 %% @doc Modify the associated Server.
 edit_server(_) ->
     {error, "You need to pass a record of type postmark_server"}.

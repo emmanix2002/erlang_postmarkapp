@@ -1,0 +1,4 @@
+%% encoding: UTF-8
+{application,erlang_postmarkapp}.
+{modules,[erlang_postmarkapp,erlang_postmarkapp_bounces,
+          erlang_postmarkapp_request,erlang_postmarkapp_server]}.

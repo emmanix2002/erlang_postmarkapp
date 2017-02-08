@@ -1,8 +1,8 @@
 %%%-------------------------------------------------------------------
 %%% @author eokeke
-%%% @copyright (C) 2017, <COMPANY>
+%%% @copyright (C) 2017
 %%% @doc
-%%%
+%%% The startup module, this module contains all the methods for sending emails.
 %%% @end
 %%% @reference http://developer.postmarkapp.com/developer-api-email.html
 %%% Created : 20. Jan 2017 10:14 AM
@@ -18,11 +18,9 @@
     send_email/1,
     send_email/4,
     send_email/11,
-    send_email_with_template/10,
-    postmark_email_to_json/1,
-    verify_email/1,
-    send_email_batch/1,
     send_email_with_template/1,
+    send_email_with_template/10,
+    send_email_batch/1,
     get_attribute_value/2,
     get_response_data/2,
     is_value_not_undefined/1,
@@ -36,60 +34,43 @@
 -type postmarkEmail() :: #postmark_email{}.
 -type postmarkEmails() :: [postmarkEmail()].
 -type sendEmailResponse() :: {ok, string()} | {error, string()}.
--spec setup(ServerToken::string()) -> ok.
--spec setup(ServerToken::string(), AccountToken::string()) -> ok.
--spec get_server_token() -> string().
--spec get_account_token() -> string().
--spec send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> sendEmailResponse().
--spec send_email(From::string(), To::string(), Subject::string(), HtmlBody::argumentValue(), TextBody::argumentValue(),
-    Tag::string(), TrackOpens::boolean(), ReplyTo::argumentValue(), Cc::argumentValue(), Bcc::argumentValue(),
-    TrackLinks::trackLinkStatus()) -> sendEmailResponse().
--spec send_email(PostmarkEmail::#postmark_email{}) -> sendEmailResponse().
--spec send_email_with_template(From::string(), To::string(), TemplateId::string(), TemplateModel::list(),
-    Tag::argumentValue(), TrackOpens::boolean(), ReplyTo::argumentValue(), Cc::argumentValue(),
-    Bcc::argumentValue(), TrackLinks::trackLinkStatus()) -> sendEmailResponse().
--spec send_email_with_template(PostmarkEmail::#postmark_email{}) -> sendEmailResponse().
--spec send_email_batch(PostmarkEmailList::postmarkEmails()) -> sendEmailResponse().
--spec postmark_email_to_json(PostmarkEmail::postmarkEmail()) -> list().
--spec get_attribute_value(Attribute::string(), Proplist::list()) -> list() | binary() | undefined.
--spec verify_email(PostmarkEmail::postmarkEmail()) -> boolean().
 
 %%====================================================================
 %% API functions
 %%====================================================================
 
-%% @spec setup(ServerToken::string()) -> ok
 %% @doc sets up the environment for making postmark requests
+-spec setup(ServerToken::string()) -> ok.
 setup(ServerToken) ->
+    setup(ServerToken, undefined).
+
+%% @doc sets up the environment for making postmark requests
+-spec setup(ServerToken::string(), AccountToken::string()) -> ok.
+setup(ServerToken, AccountToken) ->
     start(),
     ets:insert(?POSTMARK_ETS_TABLE, {?POSTMARK_ETS_SERVER_TOKEN_KEY, ServerToken}),
-    ok.
-
-%% @spec setup(ServerToken::string(), AccountToken::string()) -> ok
-%% @doc sets up the environment for making postmark requests
-setup(ServerToken, AccountToken) ->
-    setup(ServerToken),
     ets:insert(?POSTMARK_ETS_TABLE, {?POSTMARK_ETS_ACCOUNT_TOKEN_KEY, AccountToken}),
     ok.
 
-%% @spec get_server_token() -> string()
 %% @doc returns the server token saved to the postmark ets table using the server_token key
+-spec get_server_token() -> string().
 get_server_token() ->
     case ets:lookup(?POSTMARK_ETS_TABLE, ?POSTMARK_ETS_SERVER_TOKEN_KEY) of
         [{?POSTMARK_ETS_SERVER_TOKEN_KEY, ServerToken}] -> ServerToken;
         _ -> ""
     end.
 
-%% @spec get_account_token() -> string()
 %% @doc returns the account token saved to the postmark ets table using the account_token key
+-spec get_account_token() -> string().
 get_account_token() ->
     case ets:lookup(?POSTMARK_ETS_TABLE, ?POSTMARK_ETS_ACCOUNT_TOKEN_KEY) of
+        [{?POSTMARK_ETS_SERVER_TOKEN_KEY, undefined}] -> "";
         [{?POSTMARK_ETS_ACCOUNT_TOKEN_KEY, AccountToken}] -> AccountToken;
         _ -> ""
     end.
 
-%% @spec send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> ok
 %% @doc sends a single email
+-spec send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> sendEmailResponse().
 send_email(From, To, Subject, Body) ->
     case Body of
         {html, HtmlBody} ->
@@ -98,15 +79,17 @@ send_email(From, To, Subject, Body) ->
             send_email(From, To, Subject, undefined, TextBody, undefined, true, undefined, undefined, undefined, none)
     end.
 
-%% @spec send_email(From::string(), To::string(), Subject::string(), HtmlBody::argumentValue(), TextBody::argumentValue(), Tag::string(), TrackOpens::boolean(), ReplyTo::argumentValue(), Cc::argumentValue(), Bcc::argumentValue(), TrackLinks::trackLinkStatus()) -> sendEmailResponse()
 %% @doc sends a single email
+-spec send_email(From::string(), To::string(), Subject::string(), HtmlBody:: optionalValue(), TextBody:: optionalValue(),
+    Tag::string(), TrackOpens::boolean(), ReplyTo:: optionalValue(), Cc:: optionalValue(), Bcc:: optionalValue(),
+    TrackLinks::trackLinkStatus()) -> sendEmailResponse().
 send_email(From, To, Subject, HtmlBody, TextBody, Tag, TrackOpens, ReplyTo, Cc, Bcc, TrackLinks) ->
     Email = #postmark_email{from = From, to = To, subject = Subject, html = HtmlBody, text = TextBody, tag = Tag,
         track_opens = TrackOpens, reply_to = ReplyTo, cc = Cc, bcc = Bcc, track_links = TrackLinks},
     send_email(Email).
 
-%% @spec send_email(PostmarkEmail::postmarkEmail()) -> sendEmailResponse()
 %% @doc sends a single email using the email record
+-spec send_email(PostmarkEmail::#postmark_email{}) -> sendEmailResponse().
 send_email(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
     case verify_email(PostmarkEmail) of
         true ->
@@ -134,8 +117,8 @@ send_email(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
 send_email(_) ->
     throw("PostmarkEmail must be a record of type postmark_email").
 
-%% @spec send_email_batch(PostmarkEmailList::postmarkEmails()) -> sendEmailResponse().
 %% @doc Send multiple emails as a batch; sends a list of postmark_email records as an email to the required addresses.
+-spec send_email_batch(PostmarkEmailList::postmarkEmails()) -> sendEmailResponse().
 send_email_batch(PostmarkEmailList) when is_list(PostmarkEmailList), length(PostmarkEmailList) > 0,
     length(PostmarkEmailList) =< ?POSTMARK_BATCH_MAX_RECIPIENTS ->
     Payload = collect_emails(PostmarkEmailList),
@@ -191,15 +174,17 @@ send_email_batch(PostmarkEmailList) when is_list(PostmarkEmailList),
 send_email_batch(_) ->
     {error, "You need to provide a list of postmark_email records to be sent in a batch"}.
 
-%% @spec send_email_with_template(From::string(), To::string(), TemplateId::string(), TemplateModel::list(), Tag::argumentValue(), TrackOpens::boolean(), ReplyTo::argumentValue(), Cc::argumentValue(), Bcc::argumentValue(), TrackLinks::trackLinkStatus()) -> sendEmailResponse()
 %% @doc Send an email using a template.
+-spec send_email_with_template(From::string(), To::string(), TemplateId::string(), TemplateModel::list(),
+    Tag:: optionalValue(), TrackOpens::boolean(), ReplyTo:: optionalValue(), Cc:: optionalValue(),
+    Bcc:: optionalValue(), TrackLinks::trackLinkStatus()) -> sendEmailResponse().
 send_email_with_template(From, To, TemplateId, TemplateModel, Tag, TrackOpens, ReplyTo, Cc, Bcc, TrackLinks) ->
     Email = #postmark_email{from = From, to = To, tag = Tag, track_opens = TrackOpens, reply_to = ReplyTo, cc = Cc,
         bcc = Bcc, track_links = TrackLinks, template_id = TemplateId, template_model = TemplateModel},
     send_email_with_template(Email).
 
-%% @spec send_email_with_template(PostmarkEmail::postmarkEmail()) -> sendEmailResponse()
 %% @doc Send an email using a template.
+-spec send_email_with_template(PostmarkEmail::#postmark_email{}) -> sendEmailResponse().
 send_email_with_template(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
     case verify_email(PostmarkEmail) of
         true ->
@@ -239,6 +224,7 @@ get_response_data(Key, Data) ->
     end.
 
 %% @doc converts the track links option to the string value
+-spec track_links_to_string(TrackLinkStatus::trackLinkStatus()) -> string().
 track_links_to_string(TrackLinkStatus) ->
     case TrackLinkStatus of
         none -> "None";
@@ -259,12 +245,17 @@ process_json_key(Key) when not is_binary(Key) ->
 %% @doc converts a json object key to a binary
 process_json_key(Key) -> Key.
 
-%% @doc checks that a value in a tuple of the form {Key, Value} is not the atom `undefined`
+%% @doc checks that a value in a tuple of the form {Key, Value} is not the atom undefined
 is_value_not_undefined({_, Value}) ->
     case Value of
         undefined -> false;
         _ -> true
     end.
+
+%% @doc returns the value for an attribute
+-spec get_attribute_value(Attribute::string(), Proplist::list()) -> list() | binary() | undefined.
+get_attribute_value(Attribute, Proplist) ->
+    proplists:get_value(list_to_binary(Attribute), Proplist).
 
 %%====================================================================
 %% Internal functions
@@ -319,8 +310,8 @@ collect_emails([H|T], Accumulator) ->
             collect_emails(T, Accumulator)
     end.
 
-%% @spec verify_email(PostmarkEmail::postmarkEmail()) -> boolean().
 %% @doc checks the email for some conditions that show if it should be sent or not
+-spec verify_email(PostmarkEmail::postmarkEmail()) -> boolean().
 verify_email(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
     #postmark_email{to = To, cc = Cc, bcc = Bcc} = PostmarkEmail,
     ToAddresses = lists:filter(fun (Value) ->
@@ -336,13 +327,12 @@ verify_email(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
         true -> true
     end;
 
-%% @spec verify_email(PostmarkEmail::postmarkEmail()) -> boolean().
 %% @doc checks the email for some conditions that show if it should be sent or not
 verify_email(_) ->
     {false, "No a valid postmark email record"}.
 
-%% @spec spec postmark_email_to_json(PostmarkEmail::postmarkEmail()) -> list()
 %% @doc converts a postmark email record to the appropriate JSON data array
+-spec postmark_email_to_json(PostmarkEmail::postmarkEmail()) -> list().
 postmark_email_to_json(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
     #postmark_email{from = From, to = To, subject = Subject, html = Html, text = Text, tag = Tag,
         track_opens = TrackOpens, reply_to = ReplyTo, cc = Cc, bcc = Bcc, track_links = TrackLinks,
@@ -366,22 +356,20 @@ postmark_email_to_json(PostmarkEmail) when is_record(PostmarkEmail, postmark_ema
     Processed = lists:filter(fun is_value_not_undefined/1, Raw),
     email_item_to_json(Processed);
 
-%% @spec spec postmark_email_to_json(PostmarkEmail::postmarkEmail()) -> list()
 %% @doc converts a postmark email record to the appropriate JSON data array
 postmark_email_to_json(_PostmarkEmail) ->
     [].
 
-%% @spec email_item_to_json(Processed::list()) -> list().
+-spec email_item_to_json(Processed::list()) -> list().
 %% @doc converts the processed list of attributes to a JSON proplist
 email_item_to_json(Processed) ->
     email_item_to_json(Processed, []).
 
-%% @spec email_item_to_json(Processed::list(), Accumulator::list()) -> list().
+-spec email_item_to_json(Processed::list(), Accumulator::list()) -> list().
 %% @doc converts the processed list of attributes to a JSON proplist
 email_item_to_json([], Accumulator) ->
     Accumulator;
 
-%% @spec email_item_to_json(Processed::list(), Accumulator::list()) -> list().
 %% @doc converts the processed list of attributes to a JSON proplist
 email_item_to_json([H|T], Accumulator) ->
     case H of
@@ -398,8 +386,3 @@ email_item_to_json([H|T], Accumulator) ->
                     email_item_to_json(T, Accumulator)
             end
     end.
-
-%% @spec get_attribute_value(Attribute::string(), Proplist::list()) -> list() | binary() | undefined.
-%% @doc returns the value for an attribute
-get_attribute_value(Attribute, Proplist) ->
-    proplists:get_value(list_to_binary(Attribute), Proplist).

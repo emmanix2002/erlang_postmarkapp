@@ -1,8 +1,8 @@
 %%%-------------------------------------------------------------------
 %%% @author eokeke
-%%% @copyright (C) 2017, <COMPANY>
+%%% @copyright (C) 2017
 %%% @doc
-%%%
+%%% This header file contains <code>macro</code> and <code>record</code> definitions.
 %%% @end
 %%% Created : 18. Jan 2017 1:42 PM
 %%%-------------------------------------------------------------------
@@ -25,8 +25,8 @@
 -define(POSTMARK_ETS_SERVER_TOKEN_KEY, server_token).
 
 -type trackLinkStatus() :: none | html_and_text | html_only | text_only.
--type argumentValue() :: string() | undefined.
--type listArgumentValue() :: list() | undefined.
+-type optionalValue() :: string() | undefined.
+-type optionalListValue() :: list() | undefined.
 -type serverColor() :: purple | blue | turqoise | green | red | yellow | grey.
 
 %% a Postmark email record
@@ -34,16 +34,16 @@
     from                :: string(),
     to                  :: string(),
     subject             :: string(),
-    html                :: argumentValue(),
-    text                :: argumentValue(),
-    tag                 :: argumentValue(),
+    html                :: optionalValue(),
+    text                :: optionalValue(),
+    tag                 :: optionalValue(),
     track_opens=true    :: boolean(),
-    reply_to            :: argumentValue(),
-    cc                  :: argumentValue(),
-    bcc                 :: argumentValue(),
+    reply_to            :: optionalValue(),
+    cc                  :: optionalValue(),
+    bcc                 :: optionalValue(),
     track_links         :: trackLinkStatus(),
-    template_id         :: argumentValue(),
-    template_model      :: listArgumentValue(),
+    template_id         :: optionalValue(),
+    template_model      :: optionalListValue(),
     inline_css=true     :: boolean()
 }).
 
@@ -69,7 +69,7 @@
 
 %% represents a bounce type record returned after a call to get delivery stats, which returns a list of bounce types
 -record(postmark_bounce_stats, {
-    type    :: argumentValue(),
+    type    :: optionalValue(),
     name    :: string(),
     count   :: integer()
 }).
@@ -80,11 +80,11 @@
     type            :: string(),
     type_code       :: integer(),
     name            :: string(),
-    tag             :: argumentValue(),
-    message_id      :: argumentValue(),
-    server_id       :: argumentValue(),
-    description     :: argumentValue(),
-    details         :: argumentValue(),
+    tag             :: optionalValue(),
+    message_id      :: optionalValue(),
+    server_id       :: optionalValue(),
+    description     :: optionalValue(),
+    details         :: optionalValue(),
     email           :: string(),
     from            :: string(),
     bounced_at      :: string(),

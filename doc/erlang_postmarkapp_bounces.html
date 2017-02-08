@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Module erlang_postmarkapp_bounces</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module erlang_postmarkapp_bounces</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+   This module contains functions for dealing with bounces.
+<p>Copyright © (C) 2017</p>
+
+<p><b>Authors:</b> eokeke.</p>
+<p><b>References</b><ul><li>http://developer.postmarkapp.com/developer-api-bounce.html
+   Created : 20. Jan 2017 10:14 AM
+  -------------------------------------------------------------------</li></ul></p>
+
+<h2><a name="description">Description</a></h2>
+   This module contains functions for dealing with bounces.
+<h2><a name="types">Data Types</a></h2>
+
+<h3 class="typedecl"><a name="type-bounce">bounce()</a></h3>
+<p><tt>bounce() = #postmark_bounce{}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-bounces">bounces()</a></h3>
+<p><tt>bounces() = [<a href="#type-bounce">bounce()</a>]</tt></p>
+
+
+<h3 class="typedecl"><a name="type-bouncesInfo">bouncesInfo()</a></h3>
+<p><tt>bouncesInfo() = {total, integer()} | {bounces, <a href="#type-bounces">bounces()</a>}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-bouncesResponse">bouncesResponse()</a></h3>
+<p><tt>bouncesResponse() = [<a href="#type-bouncesInfo">bouncesInfo()</a>]</tt></p>
+
+
+<h3 class="typedecl"><a name="type-deliveryStat">deliveryStat()</a></h3>
+<p><tt>deliveryStat() = {inactive_mails, integer()} | {bounces, [#postmark_bounce_stats{}]}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-deliveryStatsResponse">deliveryStatsResponse()</a></h3>
+<p><tt>deliveryStatsResponse() = [<a href="#type-deliveryStat">deliveryStat()</a>] | {error, string()}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-tag">tag()</a></h3>
+<p><tt>tag() = string()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-tags">tags()</a></h3>
+<p><tt>tags() = [<a href="#type-tag">tag()</a>] | []</tt></p>
+
+
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#activate_bounce-1">activate_bounce/1</a></td><td>Cause the email address associated with a Bounce to be reactivated.</td></tr>
+<tr><td valign="top"><a href="#get_bounce-1">get_bounce/1</a></td><td>Locate information on a specific email bounce.</td></tr>
+<tr><td valign="top"><a href="#get_bounce_dump-1">get_bounce_dump/1</a></td><td>Get a "dump" for a specific bounce.</td></tr>
+<tr><td valign="top"><a href="#get_bounce_tags-0">get_bounce_tags/0</a></td><td>Get the list of tags associated with messages that have bounced.</td></tr>
+<tr><td valign="top"><a href="#get_bounces-1">get_bounces/1</a></td><td>Get a batch of bounces to be processed.</td></tr>
+<tr><td valign="top"><a href="#get_delivery_stats-0">get_delivery_stats/0</a></td><td>Get an overview of the delivery statistics for all email that has been sent through this Server.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="activate_bounce-1">activate_bounce/1</a></h3>
+<div class="spec">
+<p><tt>activate_bounce(BounceId::integer()) -&gt; {ok, <a href="#type-bounce">bounce()</a>} | {error, string()}</tt><br></p>
+</div><p>Cause the email address associated with a Bounce to be reactivated.</p>
+
+<h3 class="function"><a name="get_bounce-1">get_bounce/1</a></h3>
+<div class="spec">
+<p><tt>get_bounce(BounceId::integer()) -&gt; {ok, <a href="#type-bounce">bounce()</a>} | {error, string()}</tt><br></p>
+</div><p>Locate information on a specific email bounce.</p>
+
+<h3 class="function"><a name="get_bounce_dump-1">get_bounce_dump/1</a></h3>
+<div class="spec">
+<p><tt>get_bounce_dump(BounceId::integer()) -&gt; {ok, string()} | {error, string()}</tt><br></p>
+</div><p>Get a "dump" for a specific bounce.</p>
+
+<h3 class="function"><a name="get_bounce_tags-0">get_bounce_tags/0</a></h3>
+<div class="spec">
+<p><tt>get_bounce_tags() -&gt; {ok, <a href="#type-tags">tags()</a>} | {error, string()}</tt><br></p>
+</div><p>Get the list of tags associated with messages that have bounced.</p>
+
+<h3 class="function"><a name="get_bounces-1">get_bounces/1</a></h3>
+<div class="spec">
+<p><tt>get_bounces(BounceRequestRecord::#postmark_bounce_request{}) -&gt; <a href="#type-bouncesResponse">bouncesResponse()</a> | {error, string()}</tt><br></p>
+</div><p>Get a batch of bounces to be processed.
+  It queries the Postmark API for bounces based on the values passed in the <code>#postmark_bounce_request{}</code> record</p>
+
+<h3 class="function"><a name="get_delivery_stats-0">get_delivery_stats/0</a></h3>
+<div class="spec">
+<p><tt>get_delivery_stats() -&gt; <a href="#type-deliveryStatsResponse">deliveryStatsResponse()</a></tt><br></p>
+</div><p>Get an overview of the delivery statistics for all email that has been sent through this Server.</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Feb 8 2017, 14:16:01.</i></p>
+</body>
+</html>

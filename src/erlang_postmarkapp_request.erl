@@ -1,8 +1,9 @@
 %%%-------------------------------------------------------------------
 %%% @author eokeke
-%%% @copyright (C) 2017, <COMPANY>
+%%% @copyright (C) 2017
 %%% @doc
-%%%
+%%% This module is a wrapper around the <code>httpc</code> module. It simplifies the process of sending requests
+%%% to the Postmark API.
 %%% @end
 %%% Created : 19. Jan 2017 10:33 AM
 %%%-------------------------------------------------------------------
@@ -21,13 +22,9 @@
 -type requestMethod() :: delete | get | post | put.
 -type queryParamValue() :: string() | integer() | atom() | float() | binary().
 -type queryParam() :: {string(), queryParamValue()} | {binary(), queryParamValue()}.
+-type queryParams() :: [queryParam()].
 -type resultKey() :: headers | body.
 -type body() :: {json, list()} | {string, string()}.
--spec request(Method::requestMethod(), Endpoint::string(), Body::body()) ->
-    [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
--spec request(Method::requestMethod(), Endpoint::string(), Body::string(), Headers::list()) ->
-    [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
--spec http_build_query(QueryParams::queryParam()) -> string().
 
 %% @doc returns the default request headers
 get_default_headers() ->
@@ -36,8 +33,8 @@ get_default_headers() ->
         {"X-Postmark-Server-Token", erlang_postmarkapp:get_server_token()}
     ].
 
-%% @spec request(Method::requestMethod(), Endpoint::string(), Body::body()) -> [{resultKey(), list()}] | {error, int(), term()} | {error, fail, string()}
 %% @doc makes a request to the API appending the <code>Endpoint</code> to the base Url; Body is a proplist.
+-spec request(Method::requestMethod(), Endpoint::string(), Body::body()) -> [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
 request(Method, Endpoint, Body) ->
     case Body of
         {json, Payload} ->
@@ -46,8 +43,8 @@ request(Method, Endpoint, Body) ->
             request(Method, Endpoint, Json, get_default_headers())
     end.
 
-%% @spec request(Method::requestMethod(), Endpoint::string(), Body::string(), Headers::list()) -> [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
 %% @doc makes a request to the API appending the <code>Endpoint</code> to the base Url.
+-spec request(Method::requestMethod(), Endpoint::string(), Body::string(), Headers::list()) -> [{resultKey(), list()}] | {error, integer(), term()} | {error, fail, string()}.
 request(Method, Endpoint, Payload, Headers) ->
     Url = string:join([?POSTMARK_REST_URL, Endpoint], "/"),
     ContentType = proplists:get_value("content-type", Headers, ?POSTMARK_CONTENT_TYPE),
@@ -88,8 +85,8 @@ process_response(HttpResponse) ->
         error:Error -> io:format("Error: ~p~n", [Error])
     end.
 
-%% @spec http_build_query(QueryParams::queryParam()) -> string().
 %% @doc converts a list of query parameters to a query string
+-spec http_build_query(QueryParams::queryParams()) -> string().
 http_build_query(QueryParams) when is_list(QueryParams) ->
     ParamsList = lists:map(fun (Param) ->
         case Param of
