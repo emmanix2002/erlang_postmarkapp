@@ -1,17 +1,20 @@
 {application, erlang_postmarkapp,
  [{description, "a library for consuming the Postmark email service"},
-  {vsn, "1.0.2"},
+  {vsn, "1.0.3"},
   {registered, []},
   {applications, [kernel, stdlib, jsx]},
   {env,[]},
   {modules, [
    erlang_postmarkapp,
-   erlang_postmarkapp_request
+   erlang_postmarkapp_bounces,
+   erlang_postmarkapp_request,
+   erlang_postmarkapp_server
   ]},
   {maintainers, ["Okeke Emmanuel"]},
   {licenses, ["MIT"]},
   {links, [
-   {"Rebar3", "http://www.rebar3.org/"}
+   {"Rebar3", "http://www.rebar3.org/"},
+   {"Jsx", "https://github.com/talentdeficit/jsx"}
   ]},
   {files, [
    "src",

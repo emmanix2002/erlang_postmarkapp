@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Module erlang_postmarkapp</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module erlang_postmarkapp</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+   The startup module, this module contains all the methods for sending emails.
+<p>Copyright © (C) 2017</p>
+
+<p><b>Authors:</b> eokeke.</p>
+<p><b>References</b><ul><li>http://developer.postmarkapp.com/developer-api-email.html
+   Created : 20. Jan 2017 10:14 AM
+  -------------------------------------------------------------------</li></ul></p>
+
+<h2><a name="description">Description</a></h2>
+   The startup module, this module contains all the methods for sending emails.
+<h2><a name="types">Data Types</a></h2>
+
+<h3 class="typedecl"><a name="type-emailBody">emailBody()</a></h3>
+<p><tt>emailBody() = {text, string()} | {html, string()}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-postmarkEmail">postmarkEmail()</a></h3>
+<p><tt>postmarkEmail() = #postmark_email{}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-postmarkEmails">postmarkEmails()</a></h3>
+<p><tt>postmarkEmails() = [<a href="#type-postmarkEmail">postmarkEmail()</a>]</tt></p>
+
+
+<h3 class="typedecl"><a name="type-sendEmailResponse">sendEmailResponse()</a></h3>
+<p><tt>sendEmailResponse() = {ok, string()} | {error, string()}</tt></p>
+
+
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#get_account_token-0">get_account_token/0</a></td><td>returns the account token saved to the postmark ets table using the account_token key.</td></tr>
+<tr><td valign="top"><a href="#get_attribute_value-2">get_attribute_value/2</a></td><td>returns the value for an attribute.</td></tr>
+<tr><td valign="top"><a href="#get_response_data-2">get_response_data/2</a></td><td>returns the value of a key in a proplist converting binaries to strings when necessary.</td></tr>
+<tr><td valign="top"><a href="#get_server_token-0">get_server_token/0</a></td><td>returns the server token saved to the postmark ets table using the server_token key.</td></tr>
+<tr><td valign="top"><a href="#is_value_not_undefined-1">is_value_not_undefined/1</a></td><td>checks that a value in a tuple of the form {Key, Value} is not the atom undefined.</td></tr>
+<tr><td valign="top"><a href="#process_json_key-1">process_json_key/1</a></td><td>converts a json object key to a binary.</td></tr>
+<tr><td valign="top"><a href="#send_email-1">send_email/1</a></td><td>sends a single email using the email record.</td></tr>
+<tr><td valign="top"><a href="#send_email-11">send_email/11</a></td><td>sends a single email.</td></tr>
+<tr><td valign="top"><a href="#send_email-4">send_email/4</a></td><td>sends a single email.</td></tr>
+<tr><td valign="top"><a href="#send_email_batch-1">send_email_batch/1</a></td><td>Send multiple emails as a batch; sends a list of postmark_email records as an email to the required addresses.</td></tr>
+<tr><td valign="top"><a href="#send_email_with_template-1">send_email_with_template/1</a></td><td>Send an email using a template.</td></tr>
+<tr><td valign="top"><a href="#send_email_with_template-10">send_email_with_template/10</a></td><td>Send an email using a template.</td></tr>
+<tr><td valign="top"><a href="#setup-1">setup/1</a></td><td>sets up the environment for making postmark requests.</td></tr>
+<tr><td valign="top"><a href="#setup-2">setup/2</a></td><td>sets up the environment for making postmark requests.</td></tr>
+<tr><td valign="top"><a href="#track_links_to_string-1">track_links_to_string/1</a></td><td>converts the track links option to the string value.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="get_account_token-0">get_account_token/0</a></h3>
+<div class="spec">
+<p><tt>get_account_token() -&gt; string()</tt><br></p>
+</div><p>returns the account token saved to the postmark ets table using the account_token key</p>
+
+<h3 class="function"><a name="get_attribute_value-2">get_attribute_value/2</a></h3>
+<div class="spec">
+<p><tt>get_attribute_value(Attribute::string(), Proplist::list()) -&gt; list() | binary() | undefined</tt><br></p>
+</div><p>returns the value for an attribute</p>
+
+<h3 class="function"><a name="get_response_data-2">get_response_data/2</a></h3>
+<div class="spec">
+<p><tt>get_response_data(Key, Data) -&gt; any()</tt></p>
+</div><p>returns the value of a key in a proplist converting binaries to strings when necessary</p>
+
+<h3 class="function"><a name="get_server_token-0">get_server_token/0</a></h3>
+<div class="spec">
+<p><tt>get_server_token() -&gt; string()</tt><br></p>
+</div><p>returns the server token saved to the postmark ets table using the server_token key</p>
+
+<h3 class="function"><a name="is_value_not_undefined-1">is_value_not_undefined/1</a></h3>
+<div class="spec">
+<p><tt>is_value_not_undefined(X1) -&gt; any()</tt></p>
+</div><p>checks that a value in a tuple of the form {Key, Value} is not the atom undefined</p>
+
+<h3 class="function"><a name="process_json_key-1">process_json_key/1</a></h3>
+<div class="spec">
+<p><tt>process_json_key(Key) -&gt; any()</tt></p>
+</div><p>converts a json object key to a binary</p>
+
+<h3 class="function"><a name="send_email-1">send_email/1</a></h3>
+<div class="spec">
+<p><tt>send_email(PostmarkEmail::#postmark_email{}) -&gt; <a href="#type-sendEmailResponse">sendEmailResponse()</a></tt><br></p>
+</div><p>sends a single email using the email record</p>
+
+<h3 class="function"><a name="send_email-11">send_email/11</a></h3>
+<div class="spec">
+<p><tt>send_email(From::string(), To::string(), Subject::string(), HtmlBody::<a href="#type-optionalValue">optionalValue()</a>, TextBody::<a href="#type-optionalValue">optionalValue()</a>, Tag::string(), TrackOpens::boolean(), ReplyTo::<a href="#type-optionalValue">optionalValue()</a>, Cc::<a href="#type-optionalValue">optionalValue()</a>, Bcc::<a href="#type-optionalValue">optionalValue()</a>, TrackLinks::<a href="#type-trackLinkStatus">trackLinkStatus()</a>) -&gt; <a href="#type-sendEmailResponse">sendEmailResponse()</a></tt><br></p>
+</div><p>sends a single email</p>
+
+<h3 class="function"><a name="send_email-4">send_email/4</a></h3>
+<div class="spec">
+<p><tt>send_email(From::string(), To::string(), Subject::string(), Body::<a href="#type-emailBody">emailBody()</a>) -&gt; <a href="#type-sendEmailResponse">sendEmailResponse()</a></tt><br></p>
+</div><p>sends a single email</p>
+
+<h3 class="function"><a name="send_email_batch-1">send_email_batch/1</a></h3>
+<div class="spec">
+<p><tt>send_email_batch(PostmarkEmailList::<a href="#type-postmarkEmails">postmarkEmails()</a>) -&gt; <a href="#type-sendEmailResponse">sendEmailResponse()</a></tt><br></p>
+</div><p>Send multiple emails as a batch; sends a list of postmark_email records as an email to the required addresses.</p>
+
+<h3 class="function"><a name="send_email_with_template-1">send_email_with_template/1</a></h3>
+<div class="spec">
+<p><tt>send_email_with_template(PostmarkEmail::#postmark_email{}) -&gt; <a href="#type-sendEmailResponse">sendEmailResponse()</a></tt><br></p>
+</div><p>Send an email using a template.</p>
+
+<h3 class="function"><a name="send_email_with_template-10">send_email_with_template/10</a></h3>
+<div class="spec">
+<p><tt>send_email_with_template(From::string(), To::string(), TemplateId::string(), TemplateModel::list(), Tag::<a href="#type-optionalValue">optionalValue()</a>, TrackOpens::boolean(), ReplyTo::<a href="#type-optionalValue">optionalValue()</a>, Cc::<a href="#type-optionalValue">optionalValue()</a>, Bcc::<a href="#type-optionalValue">optionalValue()</a>, TrackLinks::<a href="#type-trackLinkStatus">trackLinkStatus()</a>) -&gt; <a href="#type-sendEmailResponse">sendEmailResponse()</a></tt><br></p>
+</div><p>Send an email using a template.</p>
+
+<h3 class="function"><a name="setup-1">setup/1</a></h3>
+<div class="spec">
+<p><tt>setup(ServerToken::string()) -&gt; ok</tt><br></p>
+</div><p>sets up the environment for making postmark requests</p>
+
+<h3 class="function"><a name="setup-2">setup/2</a></h3>
+<div class="spec">
+<p><tt>setup(ServerToken::string(), AccountToken::string()) -&gt; ok</tt><br></p>
+</div><p>sets up the environment for making postmark requests</p>
+
+<h3 class="function"><a name="track_links_to_string-1">track_links_to_string/1</a></h3>
+<div class="spec">
+<p><tt>track_links_to_string(TrackLinkStatus::<a href="#type-trackLinkStatus">trackLinkStatus()</a>) -&gt; string()</tt><br></p>
+</div><p>converts the track links option to the string value</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Feb 8 2017, 14:16:01.</i></p>
+</body>
+</html>

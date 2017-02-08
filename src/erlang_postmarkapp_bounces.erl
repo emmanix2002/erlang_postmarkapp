@@ -1,8 +1,8 @@
 %%%-------------------------------------------------------------------
 %%% @author eokeke
-%%% @copyright (C) 2017, <COMPANY>
+%%% @copyright (C) 2017
 %%% @doc
-%%%
+%%% This module contains functions for dealing with bounces.
 %%% @end
 %%% @reference http://developer.postmarkapp.com/developer-api-bounce.html
 %%% Created : 20. Jan 2017 10:14 AM
@@ -25,24 +25,17 @@
 -type deliveryStatsResponse() :: [deliveryStat()] | {error, string()}.
 -type bounce() :: #postmark_bounce{}.
 -type bounces() :: [bounce()].
--type bouncesResponse() :: {total, integer()} | {bounces, bounces()}.
+-type bouncesInfo() :: {total, integer()} | {bounces, bounces()}.
+-type bouncesResponse() :: [bouncesInfo()].
 -type tag() :: string().
 -type tags() :: [tag()] | [].
--spec get_delivery_stats() -> deliveryStatsResponse().
--spec bounce_request_item_to_json(Processed::list()) -> list().
--spec bounce_request_item_to_json(Processed::list(), Accumulator::list()) -> list().
--spec get_bounces(BounceRequestRecord::#postmark_bounce_request{}) -> [bouncesResponse()] | {error, string()}.
--spec get_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
--spec get_bounce_dump(BounceId::integer()) -> {ok, string()} | {error, string()}.
--spec activate_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
--spec get_bounce_tags() -> {ok, tags()} | {error, string()}.
 
 %%====================================================================
 %% API functions
 %%====================================================================
 
-%% @spec get_delivery_stats() -> deliveryStatsResponse()
 %% @doc Get an overview of the delivery statistics for all email that has been sent through this Server.
+-spec get_delivery_stats() -> deliveryStatsResponse().
 get_delivery_stats() ->
     RequestHeaders = erlang_postmarkapp_request:get_default_headers(),
     case erlang_postmarkapp_request:request(get, ?POSTMARK_ENDPOINT_DELIVERY_STATS, "", RequestHeaders) of
@@ -58,9 +51,9 @@ get_delivery_stats() ->
             {error, Message}
     end.
 
-%% @spec get_bounces(BounceRequestRecord::#postmark_bounce_request{}) -> [bouncesResponse()] | {error, string()}.
 %% @doc Get a batch of bounces to be processed.
-%% It queries the Postmark API for bounces based on the values passed in the `#postmark_bounce_request{}` record
+%% It queries the Postmark API for bounces based on the values passed in the <code>#postmark_bounce_request{}</code> record
+-spec get_bounces(BounceRequestRecord::#postmark_bounce_request{}) -> bouncesResponse() | {error, string()}.
 get_bounces(BounceRequestRecord) when is_record(BounceRequestRecord, postmark_bounce_request) ->
     Data = bounce_request_to_list(BounceRequestRecord),
     QueryString = erlang_postmarkapp_request:http_build_query(Data),
@@ -79,13 +72,12 @@ get_bounces(BounceRequestRecord) when is_record(BounceRequestRecord, postmark_bo
             {error, Message}
     end;
 
-%% @spec get_bounces(BounceRequestRecord::#postmark_bounce_request{}) -> [bouncesResponse()] | {error, string()}.
 %% @doc queries the Postmark API for bounces based on the values passed in the `#postmark_bounce_request{}` record
 get_bounces(_) ->
     {error, "You need to pass an instance of the postmark_bounce_request record"}.
 
-%% @spec get_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
 %% @doc Locate information on a specific email bounce.
+-spec get_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
 get_bounce(BounceId) when is_integer(BounceId) ->
     RequestUrl = string:join([?POSTMARK_ENDPOINT_BOUNCES, integer_to_list(BounceId)], "/"),
     RequestHeaders = erlang_postmarkapp_request:get_default_headers(),
@@ -102,13 +94,12 @@ get_bounce(BounceId) when is_integer(BounceId) ->
             {error, Message}
     end;
 
-%% @spec get_bounce(BounceId::integer()) -> bounce().
 %% @doc gets the details of a particular bounce, based on the supplied id.
 get_bounce(_) ->
     {error, "You need to pass an integer id of the bounce"}.
 
-%% @spec get_bounce_dump(BounceId::integer()) -> {ok, string()} | {error, string()}.
 %% @doc Get a "dump" for a specific bounce.
+-spec get_bounce_dump(BounceId::integer()) -> {ok, string()} | {error, string()}.
 get_bounce_dump(BounceId) when is_integer(BounceId) ->
     RequestUrl = string:join([
         ?POSTMARK_ENDPOINT_BOUNCES,
@@ -128,13 +119,12 @@ get_bounce_dump(BounceId) when is_integer(BounceId) ->
             {error, Message}
     end;
 
-%% @spec get_bounce_dump(BounceId::integer()) -> {ok, string()} | {error, string()}.
 %% @doc returns the dump for the bounce
 get_bounce_dump(_) ->
     {error, "You need to pass an integer id of the bounce"}.
 
-%% @spec activate_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
 %% @doc Cause the email address associated with a Bounce to be reactivated.
+-spec activate_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
 activate_bounce(BounceId) when is_integer(BounceId) ->
     RequestUrl = string:join([
         ?POSTMARK_ENDPOINT_BOUNCES,
@@ -153,13 +143,12 @@ activate_bounce(BounceId) when is_integer(BounceId) ->
             {error, Message}
     end;
 
-%% @spec activate_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}.
 %% @doc activates a bounce
 activate_bounce(_) ->
     {error, "You need to pass an integer id of the bounce"}.
 
-%% @spec get_bounce_tags() -> {ok, tags()} | {error, string()}.
 %% @doc Get the list of tags associated with messages that have bounced.
+-spec get_bounce_tags() -> {ok, tags()} | {error, string()}.
 get_bounce_tags() ->
     RequestUrl = string:join([?POSTMARK_ENDPOINT_BOUNCES, ?POSTMARK_ENDPOINT_TAGS], "/"),
     RequestHeaders = erlang_postmarkapp_request:get_default_headers(),
@@ -189,7 +178,7 @@ get_bounce_tags() ->
 %% Internal functions
 %%====================================================================
 
-%% @doc processes a list of delivery stats from a JSON object into a list of `#postmark_bounce_stat` records
+%% @doc processes a list of delivery stats from a JSON object into a list of <code>#postmark_bounce_stat</code> records
 process_delivery_stats_response(Data) ->
     InactiveMails = erlang_postmarkapp:get_response_data("InactiveMails", Data),
     BounceStats = erlang_postmarkapp:get_attribute_value("Bounces", Data),
@@ -239,17 +228,16 @@ bounce_request_to_list(BounceRequestRecord) when is_record(BounceRequestRecord, 
 bounce_request_to_list(_) ->
     [].
 
-%% @spec bounce_request_item_to_json(Processed::list()) -> list().
 %% @doc converts the processed list of attributes to a JSON proplist
+-spec bounce_request_item_to_json(Processed::list()) -> list().
 bounce_request_item_to_json(Processed) ->
     bounce_request_item_to_json(Processed, []).
 
-%% @spec bounce_request_item_to_json(Processed::list(), Accumulator::list()) -> list().
 %% @doc converts the processed list of attributes to a JSON proplist
+-spec bounce_request_item_to_json(Processed::list(), Accumulator::list()) -> list().
 bounce_request_item_to_json([], Accumulator) ->
     Accumulator;
 
-%% @spec bounce_request_item_to_json(Processed::list(), Accumulator::list()) -> list().
 %% @doc converts the processed list of attributes to a JSON proplist
 bounce_request_item_to_json([{Key, Value}|T], Accumulator) ->
     if
