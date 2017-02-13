@@ -269,7 +269,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>activate_bounce(BounceId::integer()) -> {ok, [bounce()](#type-bounce)} | {error, string()}</tt>
+<tt>activate_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}</tt>
 
 </div>
 
@@ -277,7 +277,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>get_bounces(BounceRequestRecord::[#postmark_bounce_request{}](#type-record-postmark_bounce_request)) -> [bouncesResponse()](#type-bouncesResponse) | {error, string()}</tt>
+<tt>get_bounces(BounceRequestRecord::#postmark_bounce_request{}) -> bouncesResponse() | {error, string()}</tt>
 
 </div>
 
@@ -285,7 +285,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>get_bounce(BounceId::integer()) -> {ok, [bounce()](#type-bounce)} | {error, string()}</tt>
+<tt>get_bounce(BounceId::integer()) -> {ok, bounce()} | {error, string()}</tt>
 
 </div>
 
@@ -301,7 +301,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>get_bounce_tags() -> {ok, [tags()](#type-tags)} | {error, string()}</tt>
+<tt>get_bounce_tags() -> {ok, tags()} | {error, string()}</tt>
 
 </div>
 
@@ -309,7 +309,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>get_delivery_stats() -> [deliveryStatsResponse()](#type-deliveryStatsResponse)</tt>
+<tt>get_delivery_stats() -> deliveryStatsResponse()</tt>
 
 </div>
 
@@ -317,7 +317,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>get_server() -> {ok, [#postmark_server{}](#type-record-postmark_server)} | {error, string()}</tt>
+<tt>get_server() -> {ok, #postmark_server{}} | {error, string()}</tt>
 
 </div>
 
@@ -325,7 +325,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>edit_server(ServerRecord::[#postmark_server{}](#type-record-postmark_server)) -> {ok, [#postmark_server{}](#type-record-postmark_server)} | {error, string()}</tt>
+<tt>edit_server(ServerRecord::#postmark_server{}) -> {ok, #postmark_server{}} | {error, string()}</tt>
 
 </div>
 
@@ -365,7 +365,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>send_email(PostmarkEmail::[#postmark_email{}](#type-record-postmark_email)) -> [sendEmailResponse()](#type-sendEmailResponse)</tt>
+<tt>send_email(PostmarkEmail::#postmark_email{}) -> sendEmailResponse()</tt>
 
 </div>
 
@@ -373,7 +373,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>send_email(From::string(), To::string(), Subject::string(), Body::[emailBody()](#type-emailBody)) -> [sendEmailResponse()](#type-sendEmailResponse)</tt>
+<tt>send_email(From::string(), To::string(), Subject::string(), Body::emailBody()) -> sendEmailResponse()</tt>
 
 </div>
 
@@ -381,9 +381,9 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>send_email(From::string(), To::string(), Subject::string(), HtmlBody::[optionalValue()](#type-optionalValue), TextBody:: [optionalValue()](#type-optionalValue)
-        Tag::string(), TrackOpens::boolean(), ReplyTo::[optionalValue()](#type-optionalValue) Cc::[optionalValue()](#type-optionalValue) Bcc::[optionalValue()](#type-optionalValue)
-        TrackLinks::[trackLinkStatus()](#type-trackLinkStatus)) -> [sendEmailResponse()](#type-sendEmailResponse)</tt>
+<tt>send_email(From::string(), To::string(), Subject::string(), HtmlBody::optionalValue(), TextBody::optionalValue(),
+        Tag::string(), TrackOpens::boolean(), ReplyTo::optionalValue(), Cc::optionalValue(), Bcc::optionalValue(),
+        TrackLinks::trackLinkStatus()) -> sendEmailResponse()</tt>
 
 </div>
 
@@ -391,7 +391,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>send_email_batch(PostmarkEmailList::[postmarkEmails()](#type-postmarkEmails)) -> [sendEmailResponse()](#type-sendEmailResponse)</tt>
+<tt>send_email_batch(PostmarkEmailList::postmarkEmails()) -> sendEmailResponse()</tt>
 
 </div>
 
@@ -399,7 +399,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>send_email_with_template(PostmarkEmail::[#postmark_email{}](#type-record-postmark_email)) -> [sendEmailResponse()](#type-sendEmailResponse)</tt>
+<tt>send_email_with_template(PostmarkEmail::#postmark_email{}) -> sendEmailResponse()</tt>
 
 </div>
 
@@ -408,8 +408,8 @@ You can add it to your `rebar.config` like so:
 <div class="spec">
 
 <tt>send_email_with_template(From::string(), To::string(), TemplateId::string(), TemplateModel::list(),
-        Tag:: [optionalValue()](#type-optionalValue) TrackOpens::boolean(), ReplyTo::[optionalValue()](#type-optionalValue) Cc::[optionalValue()](#type-optionalValue)
-        Bcc:: [optionalValue()](#type-optionalValue) TrackLinks::[trackLinkStatus()](#type-trackLinkStatus)) -> [sendEmailResponse()](#type-sendEmailResponse)</tt>
+        Tag:: optionalValue(), TrackOpens::boolean(), ReplyTo::optionalValue(), Cc::optionalValue(),
+        Bcc:: optionalValue(), TrackLinks::trackLinkStatus()) -> sendEmailResponse()</tt>
 
 </div>
 
@@ -417,7 +417,7 @@ You can add it to your `rebar.config` like so:
 
 <div class="spec">
 
-<tt>track_links_to_string(TrackLinkStatus::[trackLinkStatus()](#type-trackLinkStatus)) -> string()</tt>
+<tt>track_links_to_string(TrackLinkStatus::trackLinkStatus()) -> string()</tt>
 
 </div>
 
