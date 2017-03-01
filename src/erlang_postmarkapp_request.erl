@@ -76,7 +76,15 @@ process_response(HttpResponse) ->
             [{headers, []}, {body, jsx:decode(list_to_binary(Body))}];
         {ok, {StatusCode, Body}} ->
             io:format("~s:send() -> StatusCode: ~p ~p~n", [?MODULE, StatusCode, Body]),
-            {error, StatusCode, Body};
+            BodyAsJson = jsx:decode(list_to_binary(Body)),
+            ErrorMessage = erlang_postmarkapp:get_response_data("Message", BodyAsJson),
+            Message = lists:flatten([
+                "Postmark API Error (",
+                integer_to_list(StatusCode),
+                "): ",
+                ErrorMessage
+            ]),
+            {error, StatusCode, Message};
         {error, Reason} ->
             io:format("error: ~p~n", [Reason]),
             {error, fail, Reason}
