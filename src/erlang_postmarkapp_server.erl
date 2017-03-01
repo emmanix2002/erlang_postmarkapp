@@ -29,9 +29,7 @@ get_server() ->
                 [] -> {error, "No data was found in the response"}
             end;
         {error, fail, Reason} -> {error, Reason};
-        {error, StatusCode, _Body} ->
-            Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-            {error, Message}
+        {error, _StatusCode, Message} -> {error, Message}
     end.
 
 %% @doc Modify the associated Server.
@@ -46,9 +44,7 @@ edit_server(ServerRecord) when is_record(ServerRecord, postmark_server) ->
                 [] -> {error, "No data was found in the response"}
             end;
         {error, fail, Reason} -> {error, Reason};
-        {error, StatusCode, _Body} ->
-            Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-            {error, Message}
+        {error, _StatusCode, Message} -> {error, Message}
     end;
 
 %% @doc Modify the associated Server.

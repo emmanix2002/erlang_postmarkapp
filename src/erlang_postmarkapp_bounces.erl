@@ -67,9 +67,7 @@ get_bounces(BounceRequestRecord) when is_record(BounceRequestRecord, postmark_bo
                 Error -> Error
             end;
         {error, fail, Reason} -> {error, Reason};
-        {error, StatusCode, _Body} ->
-            Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-            {error, Message}
+        {error, _StatusCode, Message} -> {error, Message}
     end;
 
 %% @doc queries the Postmark API for bounces based on the values passed in the `#postmark_bounce_request{}` record
@@ -89,9 +87,7 @@ get_bounce(BounceId) when is_integer(BounceId) ->
                 [] -> {error, "No data was found in the response"}
             end;
         {error, fail, Reason} -> {error, Reason};
-        {error, StatusCode, _Body} ->
-            Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-            {error, Message}
+        {error, _StatusCode, Message} -> {error, Message}
     end;
 
 %% @doc gets the details of a particular bounce, based on the supplied id.
@@ -114,9 +110,7 @@ get_bounce_dump(BounceId) when is_integer(BounceId) ->
                 Body -> {ok, Body}
             end;
         {error, fail, Reason} -> {error, Reason};
-        {error, StatusCode, _Body} ->
-            Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-            {error, Message}
+        {error, _StatusCode, Message} -> {error, Message}
     end;
 
 %% @doc returns the dump for the bounce
@@ -138,9 +132,7 @@ activate_bounce(BounceId) when is_integer(BounceId) ->
                 {error, Message} -> {error, Message}
             end;
         {error, fail, Reason} -> {error, Reason};
-        {error, StatusCode, _Body} ->
-            Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-            {error, Message}
+        {error, _StatusCode, Message} -> {error, Message}
     end;
 
 %% @doc activates a bounce
@@ -168,10 +160,8 @@ get_bounce_tags() ->
                     {ok, []};
                 true -> {error, "Could not properly process the API response; could not find the tags list"}
             end;
-            {error, fail, Reason} -> {error, Reason};
-        {error, StatusCode, _Body} ->
-            Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-            {error, Message}
+        {error, fail, Reason} -> {error, Reason};
+        {error, _StatusCode, Message} -> {error, Message}
     end.
 
 %%====================================================================

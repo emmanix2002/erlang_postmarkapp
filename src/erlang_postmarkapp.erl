@@ -105,9 +105,7 @@ send_email(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
                         true -> {error, unknown}
                     end;
                 {error, fail, Reason} -> {error, Reason};
-                {error, StatusCode, _Body} ->
-                    Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-                    {error, Message}
+                {error, _StatusCode, Message} -> {error, Message}
             end;
         {false, Reason} -> {error, Reason}
     end;
@@ -149,9 +147,7 @@ send_email_batch(PostmarkEmailList) when is_list(PostmarkEmailList), length(Post
                         true -> {error, "Email batch sending failed"}
                     end;
                 {error, fail, Reason} -> {error, Reason};
-                {error, StatusCode, _Body} ->
-                    Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-                    {error, Message}
+                {error, _StatusCode, Message} -> {error, Message}
             end;
         true ->
             {error, "You provided a list, but there seem to be no valid postmark_email records in it"}
@@ -200,9 +196,7 @@ send_email_with_template(PostmarkEmail) when is_record(PostmarkEmail, postmark_e
                         true -> {error, unknown}
                     end;
                 {error, fail, Reason} -> {error, Reason};
-                {error, StatusCode, _Body} ->
-                    Message = string:join(["The request failed due to a ", integer_to_list(StatusCode), "error"], " "),
-                    {error, Message}
+                {error, _StatusCode, Message} -> {error, Message}
             end;
         {false, Reason} -> {error, Reason}
     end;
