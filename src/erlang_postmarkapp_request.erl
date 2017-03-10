@@ -69,25 +69,40 @@ process_response(HttpResponse) ->
             %% successfully got a response from the server
             io:format("Response Body: ~p~n", [Body]),
             [{headers, ResponseHeaders}, {body, jsx:decode(list_to_binary(Body))}];
-        {ok, {{_HttpVersion, HttpStatus, _Phrase}, _ResponseHeaders, Body}} ->
+        {ok, {{_HttpVersion, _HttpStatus, _Phrase}, ResponseHeaders, Body}} ->
             %% the request did not succeed -- some other http status other than 200
-            {error, HttpStatus, Body};
+            io:format("Response Body: ~p~n", [Body]),
+            BodyAsJson = jsx:decode(list_to_binary(Body)),
+            case erlang_postmarkapp:get_response_data("ErrorCode", BodyAsJson) of
+                undefined -> [{headers, ResponseHeaders}, {body, BodyAsJson}];
+                ErrorCode ->
+                    io:format("Error Code: ~p~n", [ErrorCode]),
+                    ErrorMessage = erlang_postmarkapp:get_response_data("Message", BodyAsJson),
+                    {error, ErrorCode, ErrorMessage}
+            end;
         {ok, {200, Body}} ->
+            io:format("Response Body: ~p~n", [Body]),
             [{headers, []}, {body, jsx:decode(list_to_binary(Body))}];
         {ok, {StatusCode, Body}} ->
-            io:format("~s:send() -> StatusCode: ~p ~p~n", [?MODULE, StatusCode, Body]),
-            BodyAsJson = jsx:decode(list_to_binary(Body)),
+            io:format("Response Body: ~p~n", [Body]),
+            {error, StatusCode, jsx:decode(list_to_binary(Body))};
+        {error, {connect_failed, Reason}} ->
+            Message = lists:flatten(["Connection failed error (", Reason, ")"]),
+            {error, fail, Message};
+        {error, {send_failed, Reason}} ->
+            Message = lists:flatten(["Request sending failed error (", Reason, ")"]),
+            {error, fail, Message};
+        {error, Reason} ->
+            io:format("Response Body: ~p~n", [Reason]),
+            BodyAsJson = jsx:decode(list_to_binary(Reason)),
             ErrorMessage = erlang_postmarkapp:get_response_data("Message", BodyAsJson),
             Message = lists:flatten([
                 "Postmark API Error (",
-                integer_to_list(StatusCode),
+                erlang_postmarkapp:get_response_data("ErrorCode", BodyAsJson),
                 "): ",
                 ErrorMessage
             ]),
-            {error, StatusCode, Message};
-        {error, Reason} ->
-            io:format("error: ~p~n", [Reason]),
-            {error, fail, Reason}
+            {error, fail, Message}
     catch
         error:badarg -> io:format("Error:badarg");
         error:Error -> io:format("Error: ~p~n", [Error])
