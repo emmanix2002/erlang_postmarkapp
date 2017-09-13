@@ -1,9 +1,8 @@
 erlang_postmarkapp
 =====
 
-An erlang library for consuming the Postmark mail service api. 
-It was inspired by the official Postmark PHP package 
-[https://github.com/wildbit/postmark-php](https://github.com/wildbit/postmark-php).   
+An Erlang library for consuming the Postmark mail service API, inspired by the official Postmark PHP package 
+[https://github.com/wildbit/postmark-php](https://github.com/wildbit/postmark-php).
 
 * [Build](#build)
 * [Quickstart](#quickstart)
@@ -22,31 +21,31 @@ It was inspired by the official Postmark PHP package
     
 <a name="quickstart">Quickstart</a>
 --------
-To use it from the `console` you can just do this:
+To use erlang_postmarkapp from the `console`, simply do this:
 
     $ ./init.sh
     
-This will _build it_, and start the Erlang shell.
+This will _build it_ and start the Erlang shell.
 
 <a name="supported-operations">Supported Operations</a>
 ------------    
-At the moment, the library only supports: _sending emails_, _handling bounces_ and _managing servers_.
+This library currently supports _sending emails_, _handling bounces_ and _managing servers_. [**are more functions in the planning?**]
 
 - Sending a single **text** or **html** email [send_email/1](#send_email-1), [send_email/4](#send_email-4), [send_email/11](#send_email-11)
-- Sending multiple emails in a batch [send_email_batch/1](#send_email_batch-1)
-- Sending a single emails using a template [send_email_with_template/1](#send_email_with_template-1), [send_email_with_template/10](#send_email_with_template-10)
-- Getting delivery stats [get_delivery_stats/0](#get_delivery_stats-0)
-- Querying for bounces [get_bounces/1](#get_bounces-1)
-- Getting a single bounce [get_bounce/1](#get_bounce-1)
-- Getting the dump for a bounce [get_bounce_dump/1](#get_bounce_dump-1)
-- Activating an email that had a bounce [activate_bounce/1](#activate_bounce-1)
-- Getting tags with bounces [get_bounce_tags/0](#get_bounce_tags-0)
-- Getting information about a server [get_server/0](#get_server-0)
-- Editing a server [edit_server/1](#edit_server-1)
+- Sending multiple emails in a batch: [send_email_batch/1](#send_email_batch-1)
+- Sending a single email using a template: [send_email_with_template/1](#send_email_with_template-1), [send_email_with_template/10](#send_email_with_template-10)
+- Getting delivery stats: [get_delivery_stats/0](#get_delivery_stats-0)
+- Querying for bounces: [get_bounces/1](#get_bounces-1)
+- Getting a single bounce: [get_bounce/1](#get_bounce-1)
+- Getting the dump for a bounce: [get_bounce_dump/1](#get_bounce_dump-1)
+- Activating an email that had a bounce: [activate_bounce/1](#activate_bounce-1)
+- Getting tags with bounces: [get_bounce_tags/0](#get_bounce_tags-0)
+- Getting information about a server: [get_server/0](#get_server-0)
+- Editing a server: [edit_server/1](#edit_server-1)
 
 <a name="installation">Installation</a>
 --------
-You can add it to your `rebar.config` like so:    
+Add it to your `rebar.config` like so:    
 
 ```erlang
 {deps, [
@@ -423,13 +422,11 @@ You can add it to your `rebar.config` like so:
 
 <a name="usage">Usage</a>
 -------
-To use the library, you need to set it up by providing the `Server Token` [and optionally an `Account Token`].  
-Before you start making calls, you need to call the [setup/1](#setup-1) or [setup/2](#setup-2) functions to initialise 
-the library and start all required processes.
-_**Recommendation**_: It is best to put the call to `setup()` in your `init` function, if you have any.   
+Set up erlang_postmarkapp by providing the `Server Token` [and optionally an `Account Token`].  
+Before you start making calls, you must call the [setup/1](#setup-1) or [setup/2](#setup-2) functions to initialise 
+the library and start all required processes. We recommend putting the call to `setup()` in your `init` function, if you have any.
 
-See an example below:   
-This is a simple example of sending a plaintext email using the library.  
+Here's a simple example of sending a plaintext email:
 
 ```erlang
 send_text_mail() ->
@@ -442,9 +439,9 @@ send_text_mail() ->
     end.
 ```
 
-- `setup(ServerToken)`: sets the server token that will be used to authenticate with the Postmark API.
-- `send_email*()`: these functions allow you to send an email.    
+- `setup(ServerToken)`: sets the server token for authenticating with the Postmark API.
+- `send_email*()`: these functions allow you to send an email.
 
 **NOTE**: based on the information on the Postman documentation, batch emails are limited to a maximum of 
-_**500**_ messages (the library enforces this); while for single emails, you can have at most _**50**_ email 
-addresses from a combination of all: `To, Cc, and Bcc` addresses.
+_**500**_ messages (the library enforces this). For single emails, you can have a maximum of _**50**_ email 
+addresses from a combination of all `To, Cc, and Bcc` addresses.
