@@ -380,6 +380,8 @@ email_item_to_json([], Accumulator) ->
 %% @doc converts the processed list of attributes to a JSON proplist
 email_item_to_json([H|T], Accumulator) ->
     case H of
+        {<<"Attachments">>, Attachments} ->
+            email_item_to_json(T, [{<<"Attachments">>, Attachments} | Accumulator]);
         {<<"TemplateModel">>, Model} ->
             ModelData = email_item_to_json(Model, []),
             email_item_to_json(T, [{<<"TemplateModel">>, ModelData} | Accumulator]);
