@@ -27,7 +27,7 @@
 -type trackLinkStatus() :: none | html_and_text | html_only | text_only.
 -type optionalValue() :: string() | undefined.
 -type optionalListValue() :: list() | undefined.
--type listAttachments() :: [#postmark_attachment{}].
+-type listAttachments() :: list().
 -type serverColor() :: purple | blue | turqoise | green | red | yellow | grey.
 
 %% a Postmark email record
