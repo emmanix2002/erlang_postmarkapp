@@ -27,6 +27,7 @@
 -type trackLinkStatus() :: none | html_and_text | html_only | text_only.
 -type optionalValue() :: string() | undefined.
 -type optionalListValue() :: list() | undefined.
+-type listAttachments() :: [#postmark_attachment{}].
 -type serverColor() :: purple | blue | turqoise | green | red | yellow | grey.
 
 %% a Postmark email record
@@ -44,6 +45,7 @@
     track_links         :: trackLinkStatus(),
     template_id         :: optionalValue(),
     template_model      :: optionalListValue(),
+    attachments         :: listAttachments(),
     inline_css=true     :: boolean()
 }).
 
@@ -65,6 +67,13 @@
     message_id      :: string(),
     from_date       :: string(),
     to_date         :: string()
+}).
+
+%% represents attachment record for attaching files/media to email
+-record(postmark_attachment, {
+    name :: binary(),
+    content_type :: binary(),
+    content :: binary() %% Base64 binary
 }).
 
 %% represents a bounce type record returned after a call to get delivery stats, which returns a list of bounce types

@@ -228,6 +228,18 @@ track_links_to_string(TrackLinkStatus) ->
         undefined -> "None"
     end.
 
+-spec attachments_2_json_proplist([#postmark_attachment{}]) -> list().
+attachments_2_json_proplist(Attachments) ->
+    AttachmentsList0 = [ [
+        {<<"Name">>, Name},
+        {<<"Content">>, Content},
+        {<<"ContentType">>, ContentType}
+    ] || #postmark_attachment{name = Name, content = Content, content_type = ContentType} <- Attachments],
+    case AttachmentsList0 of
+        [] -> undefined;
+        _ -> AttachmentsList0
+    end.
+
 %% @doc converts a json object key to a binary
 process_json_key(Key) when not is_binary(Key) ->
     if
@@ -330,7 +342,7 @@ verify_email(_) ->
 postmark_email_to_json(PostmarkEmail) when is_record(PostmarkEmail, postmark_email) ->
     #postmark_email{from = From, to = To, subject = Subject, html = Html, text = Text, tag = Tag,
         track_opens = TrackOpens, reply_to = ReplyTo, cc = Cc, bcc = Bcc, track_links = TrackLinks,
-        template_id = TemplateId, template_model = TemplateModel, inline_css = InlineCss} = PostmarkEmail,
+        template_id = TemplateId, template_model = TemplateModel, attachments = Attachments, inline_css = InlineCss} = PostmarkEmail,
     Raw = [
         {<<"From">>, From},
         {<<"To">>, To},
@@ -345,6 +357,7 @@ postmark_email_to_json(PostmarkEmail) when is_record(PostmarkEmail, postmark_ema
         {<<"TemplateModel">>, TemplateModel},
         {<<"InlineCss">>, InlineCss},
         {<<"TrackOpens">>, TrackOpens},
+        {<<"Attachments">>, attachments_2_json_proplist(Attachments)},
         {<<"TrackLinks">>, track_links_to_string(TrackLinks)}
     ],
     Processed = lists:filter(fun is_value_not_undefined/1, Raw),
